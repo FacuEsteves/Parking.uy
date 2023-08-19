@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="Estacionamiento.css">
+  <script type="text/javascript" src="Estacionamiento.js"></script>
+  <script>
+    function ocultartodo() {
+      document.getElementById("administrador").style.display = "none";
+      document.getElementById("Tarifa").style.display = "none";
+      document.getElementById("salida").style.display = "none";
+      document.getElementById("estacionamientoTabla").style.display = "none";
+      document.getElementById("ayuda").style.display = "none";
+    }
+
+    function mostrar(idmenu) {
+      ocultartodo();
+      if (idmenu != "entrada") {
+        document.getElementById("entrada").style.display = "none";
+        document.getElementById(idmenu).style.display = "inline";
+        if (idmenu == "estacionamientoTabla" || idmenu == "ayuda") {
+          document.getElementById("Turno").style.display = "none";
+        } else {
+          document.getElementById("Turno").style.display = "block";
+        }
+      } else {
+        document.getElementById(idmenu).style.display = "inline";
+      }
+
+    }
+  </script>
+  <title>🚗 PARKING.UY 🚗</title>
+</head>
+
+<body onload="VerificarTurno(); ocultartodo()">
+  <h2 id="encabezadoTitulo">🚗 PARKING.UY 🚗</h2>
+  <nav>
+    <ul>
+      <li><a onclick="mostrar('entrada')">Ingresar vehículo</a></li>
+      <li><a onclick="mostrar('salida')">Marcar salida</a></li>
+      <li><a onclick="mostrar('estacionamientoTabla')">Estacionamientos</a></li>
+      <li><a onclick="mostrar('administrador')">Tarifa</a></li>
+      <li style="float:right"><a class="active" onclick="mostrar('ayuda')">Ayuda</a></li>
+    </ul>
+  </nav>
+
+  <div id="Turno">
+    <h2 id="turno">Cargando turno...</h2>
+    <label id="turno">Total cobrado en el turno actual: </label><label id="caja"></label>
+  </div>
+
+  <div id="administrador" class="formulario">
+    <h2>Ingresar usuario:</h2>
+    <div class="input-info">
+      <label>Usuario:</label><input type="text" id="user">
+    </div>
+    <div class="input-info">
+      <label>Contraseña:</label><input type="password" id="pass">
+    </div>
+
+    <button id="verificarUser" onclick="userAdmin()">Entrar</button>
+  </div>
+
+  <div id="Tarifa" class="formulario">
+    <h2>Ingresar tarifas:</h2>
+    <div class="input-info">
+      <label>Dia:</label><input type="text" id="diaTarifa">
+      <label id="tarifaDia" style="display: none;"></label>
+    </div>
+    <div class="input-info">
+      <label>Hora:</label><input type="text" id="horaTarifa">
+      <label id="tarifaHora" style="display: none;"></label>
+    </div>
+
+    <button id="defT" onclick="definirTarifa()">Definir tarifas</button>
+    <button id="camT" onclick="cambiarTarifa()" style="display: none;">Cambiar tarifas</button>
+    <button id="salirT" onclick="mostrar('administrador')">Salir</button>
+  </div>
+
+  <div id="entrada" class="formulario">
+    <h2 id="tituloE">Ingresa nuevo vehículo</h2>
+    <div class="input-info">
+      <label>Matricula:</label><input type="text" style="text-transform:uppercase;" id="matricula" maxlength="8"
+        required>
+    </div>
+    <div class="input-info">
+      <label>Nombre del Propietario:</label><input type="text" id="nomP" required>
+    </div>
+    <div class="input-info">
+      <label>Cedula:</label><input type="text" id="cedP" maxlength="8" required>
+    </div>
+    <div class="input-info">
+      <label>Celular:</label><input type="text" id="celP" maxlength="9">
+    </div>
+    <div class="input-info">
+      <label>Tipo de reserva</label>
+      <input type="radio" id="dia" name="por" value="Por_Dia" onclick="mostrarCant()"><label for="Por_Dia">Dia</label>
+      <input type="radio" id="hora" name="por" value="Por_Hora" checked onclick="ocultarCant()"><label
+        for="Por_Hora">Hora</label>
+    </div>
+    <div id="cantdia" style="display: none;">
+      <label>Cantidad:</label><input id="diasC" type="number" value="1">
+    </div>
+
+    <button id="guardar" onclick="guardar()"><a href="#popup">Ingresa vehículo</a></button>
+    <button id="buscarButton" onclick="buscar2()">Buscar</button>
+  </div>
+
+  <div id="salida" class="formulario">
+    <h2>Marcar salida de vehiculo</h2>
+    <div class="input-info">
+      <label>Matricula:</label> <select name="Mat" id="selector">
+        <option>Seleccione una matricula...</option>
+      </select>
+    </div>
+    <div class="input-info">
+      <label>Nombre del Propietario:</label><input type="text" id="nomPS" disabled>
+    </div>
+    <div class="input-info">
+      <label>Cedula:</label><input type="text" id="cedPS" disabled>
+    </div>
+    <div class="input-info">
+      <label>Celular:</label><input type="text" id="celPS" disabled>
+    </div>
+
+    <button id="salidaButton" onclick="salida()">Marcar salida</button>
+    <button id="buscarButton" onclick="buscar()">Buscar</button>
+  </div>
+
+  <div id="estacionamientoTabla">
+    <div id="estacionamientoDisp">
+      <label>Lugares disponibles: </label><label id="cont"></label>
+    </div>
+    <table id="estacionamiento">
+      <thead>
+        <tr>
+          <th>Planta baja (1 - 10)</th>
+          <th>Piso 1 (11 - 20)</th>
+          <th>Piso 2 (21 - 30)</th>
+          <th>Piso 3 (31 - 40)</th>
+          <th>Piso 4 (41 - 50)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <!--1-->
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+        </tr>
+        <tr>
+          <!--2-->
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+        </tr>
+        <tr>
+          <!--3-->
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+        </tr>
+        <tr>
+          <!--4-->
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+        </tr>
+        <tr>
+          <!--5-->
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+        </tr>
+        <tr>
+          <!--6-->
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+        </tr>
+        <tr>
+          <!--7-->
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+        </tr>
+        <tr>
+          <!--8-->
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+        </tr>
+        <tr>
+          <!--9-->
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+        </tr>
+        <tr>
+          <!--10-->
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+          <td><img src='cocheLibre.png' alt='Disponible' width='40' height='40'></img></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div id="ayuda">
+    <!--PDF Manual de usuario-->
+    <iframe src="Manual de Usuario.pdf" style="width:70%; height:600px;" frameborder="0"></iframe>
+  </div>
+
+  <!-- MENSAJE POPUP DE AUTO INGRESADO -->
+  <div id="popup" class="overlay">
+    <div id="popupBody">
+      <h2 id="tituloPopup" style="text-decoration: underline;"></h2>
+      <div class="popupContent">
+        <p id="datosG"></p>
+        <p id="precioD"></p>
+      </div>
+      <a id="cerrar" href="#">Aceptar</a>
+      <a id="irTarifa" onclick="mostrar('administrador')" href="#">Ir</a>
+    </div>
+  </div>
+
+</body>
+
+</html>
